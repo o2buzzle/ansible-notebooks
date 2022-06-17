@@ -1,0 +1,5 @@
+---
+- name: "Make sure the system is up to date"
+  become: true
+  package: update_cache=yes state=latest cache_valid_time=86400
+  when: ansible_os_family == 'Debian'

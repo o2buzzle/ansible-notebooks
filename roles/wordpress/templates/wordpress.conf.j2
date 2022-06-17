@@ -1,0 +1,30 @@
+# Nginx config file for WP
+
+server {
+    listen {{ wordpress_http_port }};
+    server_name {{ wordpress_hostname }};
+
+    root {{ wordpress_install_dir + 'wordpress' }};
+
+    location = /favicon.ico { log_not_found off; access_log off; }
+    location = /robots.txt { log_not_found off; access_log off; allow all; }
+    location ~* ^.+\.(css|js|gif|jpg|jpeg|png)$ {
+        expires max;
+        log_not_found off;
+    }   
+
+    location / {
+        try_files $uri $uri/ /index.php$is_args$args;
+        index index.php;
+    }
+
+    location /wp-admin/ {
+        index index.php;
+    }
+
+    location ~ \.php$ {
+        include snippets/fastcgi-php.conf;
+        fastcgi_pass unix:/var/run/php/php7.4-fpm.sock;
+    }
+
+}

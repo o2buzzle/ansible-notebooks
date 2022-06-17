@@ -1,0 +1,4 @@
+wordpress_install_dir: "/var/www/html/"
+wordpress_db: "WORDPRESS"
+wordpress_hostname: "local.blog"
+wordpress_http_port: 80

@@ -1,0 +1,63 @@
+---
+- name: "Install nginx"
+  package: name=nginx state=present
+
+- name: "Install mariaDB"
+  package: name=mariadb-server state=present
+
+- name: "Install PyMySQL (else following commands will fail)"
+  package: name=python3-pymysql state=present
+
+# Replicate mysql_secure_installation
+- name: "Set root password"
+  mysql_user:
+    name: "root"
+    password: "{{ db_root_passwd }}"
+    state: present
+    host_all: true
+    login_unix_socket: "{{ login_unix_socket | default(omit) }}"
+
+- name: "Configure root's mariadb client"
+  template:
+    src: "templates/my.cnf.j2"
+    dest: "/root/.my.cnf"
+    owner: root
+    group: root
+    mode: 0600
+- name: "Delete anonymous user"
+  mysql_user: name="" state=absent host=localhost
+- name: "Delete hostname user"
+  mysql_user: name={{ ansible_nodename }} state=absent
+- name: "Remove test database"
+  mysql_db: name=test state=absent
+- name: "Disable remote root login"
+  shell: 'mysql -e "DELETE FROM mysql.user WHERE User=''root'' AND Host NOT IN (''localhost'', ''127.0.0.1'', ''::1'');"'
+
+- name: "Configure new user"
+  mysql_user: name="{{ db_user }}" password="{{ db_passwd }}" state=present
+
+- name: "Create wp database"
+  block:
+    - name: "Remove the table if it exists"
+      mysql_db: name={{ wordpress_db }} state=absent
+    - name: "Create the table"
+      mysql_db: name={{ wordpress_db }} state=present
+
+- name: "Grant all privileges on database"
+  shell: "mysql -u root -p{{ db_root_passwd }} -e 'GRANT ALL PRIVILEGES ON {{ wordpress_db }}.* TO {{ db_user }}@localhost'"
+
+- name: "Install PHP"
+  package:
+    name:
+      - php7.4-fpm
+      - php7.4-mysql
+      - php7.4-curl
+      - php7.4-gd
+      - php7.4-mbstring
+      - php7.4-xml
+      - php7.4-zip
+      - php7.4-intl
+      - php7.4-bcmath
+      - php7.4-bz2
+      - php7.4-soap
+    state: present

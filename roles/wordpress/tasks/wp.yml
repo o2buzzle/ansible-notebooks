@@ -1,0 +1,37 @@
+---
+- name: "Install Wordpress"
+  shell: |
+    cd {{ wordpress_install_dir }}
+    wget https://wordpress.org/latest.tar.gz
+    tar -xzf latest.tar.gz
+    rm latest.tar.gz
+    chown -R www-data:www-data .
+
+- name: "Configure Wordpress"
+  block:
+    - name: "Configure our secrets"
+      shell: |
+        cd {{ wordpress_install_dir }}/wordpress
+        cp wp-config-sample.php wp-config.php
+        sed -i "s/database_name_here/{{ wordpress_db }}/g" wp-config.php
+        sed -i "s/username_here/{{ db_user }}/g" wp-config.php
+        sed -i "s/password_here/{{ db_passwd }}/g" wp-config.php
+    - name: "Configure api secrets"
+      shell: |
+        cd {{ wordpress_install_dir }}/wordpress
+        sed -e '51,58d' -i wp-config.php
+        curl -L https://api.wordpress.org/secret-key/1.1/salt/ | sed -i '51r/dev/stdin' -i wp-config.php
+
+- name: "Configure nginx"
+  block:
+    - name: Copy config template to nginx config directory
+      template:
+        src: templates/wordpress.conf.j2
+        dest: /etc/nginx/sites-available/{{ wordpress_hostname }}
+        owner: root
+        group: root
+        mode: 0644
+    - name: Enable nginx config
+      shell: "ln -sf /etc/nginx/sites-available/{{ wordpress_hostname }} /etc/nginx/sites-enabled/{{ wordpress_hostname }}"
+  notify:
+    - Restart nginx
