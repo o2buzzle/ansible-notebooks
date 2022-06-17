@@ -2,7 +2,7 @@
   hosts: webservers
   gather_facts: yes
   vars_files:
-    - local_vault.yml
+    - secrets/local_vault.yml
 
   roles:
     - common
