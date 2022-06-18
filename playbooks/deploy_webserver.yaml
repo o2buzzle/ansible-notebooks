@@ -1,8 +1,8 @@
 - name: "Deployment Playbook"
   hosts: webservers
-  gather_facts: yes
+  gather_facts: true
   vars_files:
-    - secrets/local_vault.yml
+    - secrets/wp.yml
 
   roles:
     - common
