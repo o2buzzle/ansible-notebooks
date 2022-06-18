@@ -1,1 +1,12 @@
 system_become_password: somePassword
+
+wordpress_install_dir: "/var/www/html/"
+wordpress_db: "WORDPRESS"
+wordpress_hostname: "local.blog"
+wordpress_http_port: 80
+
+db_user: "mysql"
+db_passwd: "mysql1234"
+db_root_passwd: "mysql1234"
+# Modify content and encrypt with ansible-vault
+# ansible-vault encrypt secrets.example/local_vault.yml

@@ -12,7 +12,7 @@
 - name: "Set root password"
   mysql_user:
     name: "root"
-    password: "{{ db_root_passwd }}"
+    password: "{{ db_root_passwd | mandatory }}"
     state: present
     host_all: true
     login_unix_socket: "{{ login_unix_socket | default(omit) }}"
@@ -32,19 +32,6 @@
   mysql_db: name=test state=absent
 - name: "Disable remote root login"
   shell: 'mysql -e "DELETE FROM mysql.user WHERE User=''root'' AND Host NOT IN (''localhost'', ''127.0.0.1'', ''::1'');"'
-
-- name: "Configure new user"
-  mysql_user: name="{{ db_user }}" password="{{ db_passwd }}" state=present
-
-- name: "Create wp database"
-  block:
-    - name: "Remove the table if it exists"
-      mysql_db: name={{ wordpress_db }} state=absent
-    - name: "Create the table"
-      mysql_db: name={{ wordpress_db }} state=present
-
-- name: "Grant all privileges on database"
-  shell: "mysql -u root -p{{ db_root_passwd }} -e 'GRANT ALL PRIVILEGES ON {{ wordpress_db }}.* TO {{ db_user }}@localhost'"
 
 - name: "Install PHP"
   package:
