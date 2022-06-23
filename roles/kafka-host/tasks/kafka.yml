@@ -1,0 +1,18 @@
+---
+- name: "Pull Kafka image"
+  docker_image:
+    name: "blacktop/kafka"
+    source: pull
+
+- name: "Create Kafka container"
+  docker_container:
+    name: "kafka"
+    image: "blacktop/kafka"
+    state: present
+    ports:
+      - "9092:9092"
+
+- name: "Start Kafka container"
+  docker_container:
+    name: "kafka"
+    state: started

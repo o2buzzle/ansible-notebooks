@@ -2,6 +2,7 @@
   hosts: webservers
   gather_facts: true
   vars_files:
+    - secrets/root_passwords.yml
     - secrets/wp.yml
 
   roles:

@@ -1,0 +1,6 @@
+---
+- name: "Check for Docker"
+  docker_host_info:
+
+- import_tasks: kafka.yml
+  become: true

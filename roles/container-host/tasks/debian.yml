@@ -1,0 +1,41 @@
+---
+- name: "Ensure necessary packages are installed"
+  ansible.builtin.apt:
+    name:
+      - ca-certificates
+      - curl
+      - gnupg
+      - lsb-release
+    state: present
+
+- name: "Check if Docker's keys already exist"
+  stat:
+    path: /etc/apt/keyrings/docker.gpg
+  register: docker_key_check
+
+- name: "Add Docker's keyring"
+  shell: "{{ item }}"
+  loop:
+    - "mkdir -p /etc/apt/keyrings"
+    - "curl -fsSL https://download.docker.com/linux/$(lsb_release -is | awk '{print tolower($0)}')/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg"
+  when: docker_key_check.stat.exists == false
+
+- name: "Setup Docker's repository"
+  shell: >
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] 
+    https://download.docker.com/linux/$(lsb_release -is | awk '{print tolower($0)}') $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+- name: "Update apt cache (forced)"
+  ansible.builtin.apt:
+    update_cache: yes
+    state: latest
+    cache_valid_time: 0
+
+- name: "Install Docker"
+  ansible.builtin.apt:
+    name:
+      - docker-ce
+      - python3-docker
+    state: present
+  notify:
+    - "Enable Docker"
