@@ -1,18 +1,20 @@
 ---
-- name: "Pull Kafka image"
-  docker_image:
-    name: "blacktop/kafka"
-    source: pull
+- name: "Create Kafka directory"
+  file:
+    path: /opt/kafka
+    state: directory
 
-- name: "Create Kafka container"
-  docker_container:
-    name: "kafka"
-    image: "blacktop/kafka"
-    state: present
-    ports:
-      - "9092:9092"
+- name: "Copy compose file to host"
+  template:
+    src: docker_compose.yml.j2
+    dest: /opt/kafka/docker-compose.yml
+    owner: root
+    group: root
+    mode: 0644
 
-- name: "Start Kafka container"
-  docker_container:
-    name: "kafka"
-    state: started
+- name: "Compose the Kafka stack"
+  community.docker.docker_compose:
+    project_src: /opt/kafka
+    project_name: kafka
+    restarted: yes
+    recreate: smart
