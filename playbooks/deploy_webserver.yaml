@@ -6,5 +6,4 @@
     - secrets/wp.yml
 
   roles:
-    - common
-    - wordpress
+    - ../roles/wordpress

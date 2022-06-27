@@ -2,3 +2,4 @@ inventory/
 
 # Junk
 .vscode/
+.DS_Store
