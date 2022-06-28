@@ -1,0 +1,3 @@
+[submodule "kafka-messages"]
+	path = kafka-messages
+	url = git@github.com:o2buzzle/kafka-messages.git
