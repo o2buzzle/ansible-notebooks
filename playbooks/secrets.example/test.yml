@@ -1,5 +1,3 @@
-system_become_password: somePassword
-
 wordpress_install_dir: "/var/www/html/"
 wordpress_db: "WORDPRESS"
 wordpress_hostname: "local.blog"
