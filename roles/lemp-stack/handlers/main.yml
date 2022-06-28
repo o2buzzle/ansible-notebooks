@@ -6,3 +6,7 @@
 - name: "Restart PHP"
   service: name=php7.4-fpm state=restarted
   become: true
+
+- name: "Restart MariaDB"
+  service: name=mariadb-server state=restarted
+  become: true

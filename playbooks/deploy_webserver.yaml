@@ -3,7 +3,7 @@
   gather_facts: true
   vars_files:
     - secrets/root_passwords.yml
-    - secrets/wp.yml
+    - secrets/wordpress.yml
 
   roles:
     - ../roles/wordpress

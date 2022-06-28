@@ -1,13 +1,30 @@
 ---
+- name: "Collect package facts"
+  package_facts:
+    manager: "auto"
+
 - name: "Install nginx"
   package: name=nginx state=present
+  when: "'nginx' not in ansible_facts.packages"
 
 - name: "Install mariaDB"
   package: name=mariadb-server state=present
+  when: "'mariadb-server' not in ansible_facts.packages"
 
 - name: "Install PyMySQL (else following commands will fail)"
   package: name=python3-pymysql state=present
 
+- name: "Force MariaDB reset"
+  shell: |
+    rm -rf /var/lib/mysql/*
+    mysql_install_db --basedir=/usr --datadir=/var/lib/mysql
+    rm /root/.my.cnf
+  when:
+    - "'mariadb-server' not in ansible_facts.packages"
+
+- name: "Restart MariaDB"
+  service: name=mariadb state=restarted
+  become: true
 # Replicate mysql_secure_installation
 - name: "Set root password"
   mysql_user:
